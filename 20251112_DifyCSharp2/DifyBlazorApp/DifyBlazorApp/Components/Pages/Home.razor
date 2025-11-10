@@ -1,0 +1,124 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using DifyBlazorApp.Services
+@inject DifyApiService DifyApi
+
+<PageTitle>Dify Chat</PageTitle>
+
+<div class="chat-container">
+    <h3>AI チャット</h3>
+
+    <div class="messages-area">
+        @* メッセージリストの動的レンダリング *@
+        @foreach (var message in _messages)
+        {
+            <div class="message @(message.IsUser ? "user-message" : "ai-message")">
+                <div class="message-header">
+                    @(message.IsUser ? "👤 あなた" : "🤖 AI")
+                </div>
+                <div class="message-body">
+                    @message.Text
+                </div>
+            </div>
+        }
+        @* 処理中インジケーター *@
+        @if (_isProcessing)
+        {
+            <div class="message ai-message">
+                <div class="message-header">🤖 AI</div>
+                <div class="message-body">
+                    <span class="typing-indicator">考え中...</span>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="input-area">
+        @* 双方向バインディング: oninput イベントでリアルタイム更新 *@
+        <input @bind="_inputText"
+               @bind:event="oninput"
+               @onkeydown="HandleKeyDown"
+               placeholder="メッセージを入力..."
+               disabled="@_isProcessing"
+               class="message-input" />
+        @* 計算プロパティによる disabled 状態の制御 *@
+        <button @onclick="SendMessage"
+                disabled="@IsSendDisabled"
+                class="send-button">
+            送信
+        </button>
+    </div>
+</div>
+
+@code {
+    private List<ChatMessage> _messages = new();
+    private string _inputText = string.Empty;
+    private bool _isProcessing = false;
+    private string? _conversationId = null; // 会話の継続性を保持
+
+    // ユーザー識別子（今回は固定値）
+    private const string UserId = "blazor-user";
+
+    // 計算プロパティ: 送信ボタンの有効/無効を判定
+    private bool IsSendDisabled => _isProcessing || string.IsNullOrWhiteSpace(_inputText);
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(_inputText) || _isProcessing)
+            return;
+
+        var userMessage = _inputText;
+        _messages.Add(new ChatMessage { Text = userMessage, IsUser = true });
+        _inputText = string.Empty;
+        _isProcessing = true;
+
+        try
+        {
+            // 外部 API 呼び出し（依存性注入されたサービス利用）
+            var response = await DifyApi.SendMessageAsync(
+                userMessage,
+                _conversationId,
+                UserId);
+
+            // 会話 ID を保持して会話の継続性を維持
+            _conversationId = response?.ConversationId;
+
+            if (!string.IsNullOrEmpty(response?.Answer))
+            {
+                _messages.Add(new ChatMessage
+                {
+                    Text = response.Answer,
+                    IsUser = false
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _messages.Add(new ChatMessage
+            {
+                Text = $"エラーが発生しました: {ex.Message}",
+                IsUser = false
+            });
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    // キーボードイベントハンドリング: Enter キーで送信
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            await SendMessage();
+        }
+    }
+
+    // ネストクラス: required プロパティによる初期化の強制
+    private class ChatMessage
+    {
+        public required string Text { get; init; }
+        public required bool IsUser { get; init; }
+    }
+}

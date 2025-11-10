@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DifyConsoleApp": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DIFY_API_KEY": "Your API Key"
+      }
+    }
+  }
+}
