@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/infra/">
+    <File Path="infra/main.bicep" />
+    <File Path="infra/models.bicep" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/HrMatchingSearch/HrMatchingSearch.csproj" />
+  </Folder>
+  <Folder Name="/ソリューション項目/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="README.md" />
+  </Folder>
+</Solution>
