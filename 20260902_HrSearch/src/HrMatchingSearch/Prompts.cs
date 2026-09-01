@@ -9,7 +9,7 @@ static class Prompts
 {
     static readonly string Dir = Path.Combine(AppContext.BaseDirectory, "prompts");
 
-    /// <summary>キーワード生成。variant を指定すると keyword_/// <summary>キーワード生成。naive=true で規則のない素の版。</summary>lt;variant/// <summary>キーワード生成。naive=true で規則のない素の版。</summary>gt;.txt を使う。</summary>
+    /// <summary>キーワード生成。variant を指定すると keyword_&lt;variant&gt;.txt を使う。</summary>
     public static string Keyword(string? variant) => Load(variant is null ? "keyword" : "keyword_" + variant);
 
     /// <summary>候補者の判定。quoteOnly=true で reason に引用だけを求める版。</summary>

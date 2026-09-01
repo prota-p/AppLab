@@ -24,7 +24,7 @@ switch (args)
         await Database.SeedAsync(env);
         break;
 
-    // --naive / --quote-only は、記事で説明した「失敗した版」のプロンプトに差し替える。
+    // --prompt <版> / --quote-only は、記事で説明した「規則を減らした版」に差し替える。
     // 中身は prompts/ を参照
     case ["keyword", var query]:
         await KeywordSearch.RunAsync(env, query);
@@ -70,9 +70,10 @@ static void PrintUsage()
           dotnet run -- rag-hybrid "検索文"   (3) (1)と(2)の候補を合わせてAIに読ませる ★本命
           dotnet run -- rag-all    "検索文"   (3) 検索せず全件をAIに読ませる（比較用）
 
-        プロンプトの切り替え（記事で説明した「失敗した版」を再現する。詳しくは prompts/README.md）:
-          dotnet run -- keyword "検索文" --naive        規則を書かない素の版。1文字キーワードが出る
-          dotnet run -- rag-*   "検索文" --quote-only   reason に引用だけを求める版。否定の依頼で0件になる
+        プロンプトの切り替え（記事で説明した「規則を減らした版」を再現する。詳しくは prompts/README.md）:
+          dotnet run -- keyword "検索文" --prompt naive          規則を書かない素の版
+          dotnet run -- keyword "検索文" --prompt no_expansion   概念を製品名へ展開する指示を外した版
+          dotnet run -- rag-*   "検索文" --quote-only            「ないこと」の扱いを書かない版
 
         例:
           dotnet run -- keyword    "組み込みの経験がある人は？"

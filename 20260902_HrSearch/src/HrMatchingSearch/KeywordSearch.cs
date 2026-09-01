@@ -25,9 +25,9 @@ static class KeywordSearch
     }
 
     /// <summary>
-    /// 検索文からキーワードを作らせる。規則はどれも実測で必要になったもの。
-    /// 素朴に頼むと結果が毎回変わるので、ひとつずつ潰していった結果がこの形。
-    /// プロンプトの本文は prompts/keyword.txt。naive=true で規則のない素の版を使う。
+    /// 検索文からキーワードを作らせる。規則はどれも LIKE の部分一致の性質から導いたもの。
+    /// 素朴に頼むと検索文の語をそのまま返してくるので、照合できる形へ寄せる規則を足していった。
+    /// プロンプトの本文は prompts/keyword.txt。variant を渡すと規則を減らした版に切り替わる。
     /// </summary>
     public static async Task<Keywords> GenerateKeywordsAsync(SearchEnv env, string query, string? variant = null)
     {
